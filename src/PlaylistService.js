@@ -5,16 +5,25 @@ class PlaylistsService {
     this._pool = new Pool();
   }
 
-  async getPlaylists(userId) {
-    const query = {
-      text: `SELECT playlists.* FROM playlists
-      LEFT JOIN collaborations ON collaborations.playlist_id = playlists.id
-      WHERE playlists.owner = $1 OR collaborations.user_id = $1
-      GROUP BY playlists.id`,
-      values: [userId],
+  async getPlaylists(playlistId) {
+    const queryPlaylist = {
+      text: 'SELECT * FROM playlists WHERE id = $1',
+      values: [playlistId],
     };
-    const result = await this._pool.query(query);
-    return result.rows;
+    const querySongs = {
+      text: `SELECT songs.id, songs.title, songs.performer FROM playlist_songs 
+      INNER JOIN songs ON playlist_songs.song_id = songs.id 
+      WHERE playlist_id = $1`,
+      values: [playlistId],
+    };
+    const resultPlaylist = await this._pool.query(queryPlaylist);
+    const resultSongs = await this._pool.query(querySongs);
+
+    return {
+      id: resultPlaylist.rows[0].id,
+      name: resultPlaylist.rows[0].name,
+      songs: resultSongs.rows,
+    };
   }
 }
 
