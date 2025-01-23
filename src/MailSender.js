@@ -14,14 +14,14 @@ class MailSender {
 
   sendEmail(targetEmail, content) {
     const message = {
-      from: 'Open Music',
+      from: '"Open Music" <no-reply@openmusic.com>',
       to: targetEmail,
       subject: 'Ekspor Playlist',
       text: 'Terlampir hasil dari ekspor playlist',
       attachments: [
         {
           filename: 'playlists.json',
-          content,
+          content: JSON.stringify(content, null, 2),
         },
       ],
     };
